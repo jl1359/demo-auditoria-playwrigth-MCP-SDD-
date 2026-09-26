@@ -62,7 +62,7 @@ async function iniciarAuditoria() {
     });
 
     const model = genAI.getGenerativeModel({ 
-        model: "gemini-3.8-flash",
+        model: "gemini-flash-lite-latest",
         tools: [{ functionDeclarations: herramientasGemini }]
     });
 
