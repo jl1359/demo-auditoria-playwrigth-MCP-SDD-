@@ -1,0 +1,14 @@
+# Dependencias de Node
+node_modules/
+
+# Variables de entorno y secretos (NUNCA SUBIR ESTO)
+.env
+
+# Archivos de reportes generados por la IA
+REPORTE_*.txt
+REPORTE_*.md
+
+# Archivos de build y logs
+dist/
+*.log
+.DS_Store
