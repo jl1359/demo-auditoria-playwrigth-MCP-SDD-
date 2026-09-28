@@ -78,7 +78,7 @@ async function iniciarAuditoria() {
     let completado = false;
     let iteracion = 0;
 
-    while (!completado && iteracion < 15) {
+    while (!completado && iteracion < 40) {
         iteracion++;
         console.log("   [Gemini Pensando...]");
         
@@ -139,8 +139,7 @@ async function iniciarAuditoria() {
             const final = respuesta.response.text();
             console.log(final);
             
-            // Genera un nombre de archivo basado en el nombre del spec
-            const nombreReporte = `REPORTE_${archivoSpec.replace('.md', '').replace('./', '')}.txt`;
+            const nombreReporte = `REPORTE_${archivoSpec.replace('.md', '').replace('./', '').replace('.\\', '')}.txt`;
             fs.writeFileSync(nombreReporte, final);
             console.log(`\n📁 Reporte guardado en ${nombreReporte}`);
             completado = true;
