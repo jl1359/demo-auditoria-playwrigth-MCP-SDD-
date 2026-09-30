@@ -1,0 +1,49 @@
+# Reporte de Auditoría Autónomo: Robo de Sesión (Google Gruyere)
+
+**Fecha:** 24 de Mayo, 2024  
+**Objetivo Auditado:** Instancia dedicada en Google Gruyere (`https://google-gruyere.appspot.com/667490706167728538342714805984010532666/`)  
+**Agente Auditor:** Agente Autónomo de Seguridad  
+
+---
+
+## 1. Resumen Ejecutivo
+Se realizó una auditoría de seguridad sobre la gestión de sesiones en la plataforma intencionalmente vulnerable Google Gruyere. El objetivo consistió en registrar un usuario de prueba (`hacker_ai`), iniciar sesión y extraer el valor de las cookies mediante ejecución directa de JavaScript (`document.cookie`) para evaluar las políticas de cifrado y protección de tokens de sesión.
+
+---
+
+## 2. Pasos Realizados
+1. **Instanciación:** Se navegó a la URL principal y se accedió a la instancia asignada de Gruyere (`.../667490706167728538342714805984010532666`).
+2. **Registro de Usuario (`Sign up`):** Se creó una cuenta con el usuario `hacker_ai` y la contraseña `1234`.
+3. **Autenticación (`Login`):** Se inició sesión correctamente utilizando las credenciales recién creadas.
+4. **Extracción de Cookies:** Se ejecutó el comando de consola `document.cookie` para capturar los identificadores y tokens de sesión activos en el navegador.
+
+---
+
+## 3. Evidencia y Análisis de Cookies
+
+El valor exacto extraído de `document.cookie` fue:
+
+```text
+GRUYERE=10850514|hacker_ai||author; GRUYERE_ID=667490706167728538342714805984010532666
+```
+
+### Análisis Detallado del Token (`GRUYERE`):
+* **Estructura:** El valor de la cookie está compuesto por campos separados por barras verticales (`|`):
+  - `10850514`: Identificador numérico único de sesión/token aleatorio o contador.
+  - `hacker_ai`: **El nombre de usuario en texto plano**.
+  - `||author`: Permisos o roles del usuario (`author`), indicando privilegios dentro de la aplicación.
+* **Cifrado/Codificación:** **Cero cifrado (Plaintext / Texto plano)**. No utiliza algoritmos criptográficos (como AES, RSA) ni funciones de resumen (firmas HMAC para prevenir manipulación), ni está codificado en Base64. Cualquier usuario o script con acceso a la cookie puede leer directamente qué usuario está autenticado y cuáles son sus privilegios.
+* **Seguridad de la Cookie:** 
+  - La cookie **no** cuenta con la bandera `HttpOnly`, lo cual se evidencia claramente en el hecho de que pudo ser leída directamente mediante JavaScript (`document.cookie`).
+  - Esto facilita ataques de tipo **Cross-Site Scripting (XSS)** orientados al robo de sesiones (Session Hijacking).
+
+---
+
+## 4. Conclusión
+
+**La gestión de sesión de Google Gruyere es altamente vulnerable.** 
+
+1. **Falta de Cifrado y Firma:** La cookie expone información sensible directamente en texto plano (nombre de usuario y rol). Un atacante que capture esta cookie (por ejemplo, a través de una red no cifrada o mediante XSS) puede leer fácilmente las credenciales de sesión e incluso intentar alterar los campos (ej. cambiar `author` por `admin` si no hay validación del lado del servidor o si se confía ciegamente en la cookie).
+2. **Exposición a XSS:** Al carecer del atributo `HttpOnly`, cualquier script malicioso inyectado en el sitio web puede extraer el token y exfiltrarlo a un servidor controlado por el atacante.
+
+**Recomendación de remediación:** Utilizar identificadores de sesión opacos (UUIDs aleatorios almacenados de forma segura en una base de datos del lado del servidor) y asegurar que todas las cookies de sesión implementen las banderas `HttpOnly`, `Secure` y `SameSite`.

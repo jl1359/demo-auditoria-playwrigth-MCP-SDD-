@@ -1,0 +1,28 @@
+# Reporte de Auditoría Autónomo: Wikipedia
+
+**URL Objetivo:** https://es.wikipedia.org/
+**Fecha de Ejecución:** Sesión actual de auditoría autónoma
+
+---
+
+## Pasos Seguidos
+
+1. **Navegación Inicial:** 
+   - Se accedió de forma exitosa a la página principal de Wikipedia en español (`https://es.wikipedia.org/`).
+2. **Búsqueda del Artículo:** 
+   - Se localizó el campo de entrada de búsqueda (`input[name="search"]`), se ingresó el término `"Inteligencia Artificial"` y se ejecutó la búsqueda mediante la redirección directa al artículo correspondiente.
+3. **Extracción de Contenido:** 
+   - Una vez en el artículo de la enciclopedia, se utilizó JavaScript para recorrer los párrafos dentro del contenedor principal de contenido (`.mw-parser-output p`) y extraer el texto correspondiente al primer párrafo relevante.
+
+---
+
+## Resultados Obtenidos
+
+* **Título del Artículo:** Inteligencia artificial
+* **Primer Párrafo Encontrado:**
+  > "La inteligencia artificial, abreviada como IA o AI (por su nombre en inglés: artificial intelligence), en el contexto de las ciencias de la computación, es una disciplina y un conjunto de capacidades cognoscitivas e intelectuales expresadas por sistemas informáticos o combinaciones de algoritmos cuyo propósito es la creación de máquinas que imiten la inteligencia humana.[1]"
+
+---
+
+## Conclusiones
+La auditoría se ha completado de manera exitosa. Todas las instrucciones del SDD se cumplieron rigurosamente, demostrando la capacidad de navegación, interacción con la interfaz de búsqueda, procesamiento del DOM y extracción de datos textuales en la plataforma de Wikipedia.

@@ -1,0 +1,31 @@
+# Reporte de Auditoría Autónomo: Extracción de Datos
+
+**URL Objetivo:** http://books.toscrape.com/  
+**Fecha/Hora:** Evaluación automatizada en tiempo real  
+**Agente Auditor:** Autónomo / Automatizado vía Puppeteer  
+
+---
+
+## 1. Resumen Ejecutivo
+El objetivo de la presente auditoría fue verificar la capacidad de navegación por el catálogo de la tienda en línea "Books to Scrape", extraer información estructurada (títulos y precios) de los primeros elementos de la portada y evaluar el estado de carga general de la información del catálogo.
+
+---
+
+## 2. Resultados de la Extracción de Datos
+Durante la navegación a la página principal del sitio objetivo, se analizaron los elementos correspondientes a las tarjetas de productos (`.product_pod`). Se extrajeron exitosamente los primeros 3 libros visibles en la portada:
+
+| # | Título del Libro | Precio |
+|---|---|---|
+| 1 | **A Light in the Attic** | £51.77 |
+| 2 | **Tipping the Velvet** | £53.74 |
+| 3 | **Soumission** | £50.10 |
+
+---
+
+## 3. Conclusión de la Auditoría
+**El catálogo carga correctamente la información.** 
+
+*Justificación:* 
+- La conexión a la URL objetivo se estableció de manera exitosa sin errores de red.
+- Los elementos del DOM correspondientes al catálogo (`h3 a` para títulos y `.price_color` para precios) se encuentran estructurados de forma predecible y accesible para los selectores de extracción.
+- Los datos obtenidos son consistentes, completos y reflejan fielmente la información visualizada en la interfaz gráfica del sitio web.

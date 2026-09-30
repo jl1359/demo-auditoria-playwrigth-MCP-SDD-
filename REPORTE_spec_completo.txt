@@ -1,0 +1,33 @@
+### Reporte de Auditoría Autónomo: OWASP Juice Shop
+
+**URL Objetivo:** `https://demo.owasp-juice.shop/#/login`  
+**Objetivo de la Auditoría:** Verificar la robustez del sistema de autenticación contra ataques básicos de Inyección SQL (SQLi) y evaluar la respuesta del sistema.
+
+---
+
+### 1. Pasos Ejecutados
+1. **Preparación del Entorno:** 
+   - Se navegó a la página de inicio de sesión de OWASP Juice Shop.
+   - Se interactuó con la interfaz para descartar el banner de bienvenida ("Welcome to OWASP Juice Shop") y limpiar la pantalla de elementos superpuestos.
+2. **Inyección de Payload SQLi:** 
+   - Se localizó el campo de entrada para el correo electrónico (`Email`) y se introdujo el payload clásico de inyección SQL de autenticación: `' OR 1=1 --`.
+   - En el campo de contraseña (`Password`), se introdujo un texto falso de prueba: `clave123`.
+3. **Ejecución:** 
+   - Se hizo clic en el botón "Log in" para enviar el formulario con la inyección.
+
+---
+
+### 2. Resultados y Evidencias
+* **Reacción del Sistema:** El sistema **no** fue vulnerado por este payload básico. En lugar de permitir el acceso a una cuenta administrativa, la aplicación reaccionó mostrando el mensaje de error estándar en color rojo: **"Invalid email or password"**.
+* **Captura de Pantalla:** Se capturó la interfaz posterior al intento de inicio de sesión, evidenciando el rechazo de las credenciales maliciosas (`sqli_login_result.png`).
+
+---
+
+### 3. Conclusiones y Recomendación Técnica
+
+* **Conclusión:** La vulnerabilidad clásica de Inyección SQL (`' OR 1=1 --`) en el formulario de inicio de sesión **fue bloqueada exitosamente** por el sistema. Esto indica que la aplicación implementa mecanismos adecuados (como consultas parametrizadas o *Prepared Statements*) para tratar los campos de entrada como literales de cadena en lugar de evaluarlos como código SQL ejecutable.
+
+* **Recomendación Técnica para el Equipo de Desarrollo:**
+  1. **Mantener buenas prácticas:** Continuar utilizando sentencias preparadas (`Prepared Statements`) o ORMs seguros que aíslen los datos introducidos por el usuario de la lógica de consulta SQL.
+  2. **Defensa en Profundidad:** Asegurar que los mensajes de error devueltos al usuario sean genéricos (como el actual *"Invalid email or password"*) para evitar la filtración de información sensible sobre la estructura de la base de datos o la existencia real de los usuarios.
+  3. **Pruebas Continuas:** Integrar pruebas automatizadas de seguridad (SAST/DAST) en el ciclo de vida del desarrollo de software (SDLC) para prevenir regresiones que puedan introducir vulnerabilidades de SQLi en futuras versiones.

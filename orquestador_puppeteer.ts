@@ -2,6 +2,7 @@ import { GoogleGenerativeAI, FunctionDeclaration } from '@google/generative-ai';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import * as fs from 'fs';
+import * as path from 'path';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,21 +23,26 @@ async function conReintento(fn: () => Promise<any>, maxRetries = 10) {
             }
         }
     }
-    throw new Error("El servidor falló repetidamente después de múltiples intentos.");
+    throw new Error("El servidor fallo repetidamente despues de multiples intentos.");
 }
 
 async function iniciarAuditoria() {
-    // Tomar el archivo spec desde los argumentos de la consola (o usar el por defecto)
-    const archivoSpec = process.argv[2] || './auditoria_spec.md';
+    const archivoSpec = process.argv[2];
     
-    console.log(`📖 1. Leyendo Documento SDD (${archivoSpec})...`);
+    if (!archivoSpec) {
+        console.error(' Error: Debes proporcionar la ruta del archivo SDD.');
+        console.error('Uso: npx tsx .\\orquestador_puppeteer.ts <ruta_al_archivo.md>');
+        process.exit(1);
+    }
+    
+    console.log(` 1. Leyendo Documento SDD (${archivoSpec})...`);
     if (!fs.existsSync(archivoSpec)) {
-        console.error(`❌ El archivo ${archivoSpec} no existe.`);
+        console.error(` El archivo ${archivoSpec} no existe.`);
         process.exit(1);
     }
     const sddContent = fs.readFileSync(archivoSpec, 'utf-8');
 
-    console.log("🔌 2. Conectando al Servidor MCP...");
+    console.log(" 2. Conectando al Servidor MCP...");
     const transport = new StdioClientTransport({
         command: "npx",
         args: ["-y", "@modelcontextprotocol/server-puppeteer"]
@@ -46,7 +52,7 @@ async function iniciarAuditoria() {
     await mcpClient.connect(transport);
 
     const mcpTools = await mcpClient.listTools();
-    console.log(`✅ Conectado. Herramientas encontradas: ${mcpTools.tools.length}`);
+    console.log(` Conectado. Herramientas encontradas: ${mcpTools.tools.length}`);
 
     const herramientasGemini: FunctionDeclaration[] = mcpTools.tools.map(tool => {
         const schema = tool.inputSchema as any;
@@ -66,12 +72,12 @@ async function iniciarAuditoria() {
         tools: [{ functionDeclarations: herramientasGemini }]
     });
 
-    console.log("🧠 3. Iniciando el Agente de IA (Gemini)...");
+    console.log(" 3. Iniciando el Agente de IA");
     
     let history: any[] = [
         {
             role: "user",
-            parts: [{ text: `Eres un Agente Auditor Autónomo. Sigue estrictamente este SDD:\n\n${sddContent}\n\nUsa tus herramientas para realizar la tarea y cuando termines, escribe un reporte detallado con tus conclusiones.` }]
+            parts: [{ text: `Eres un Agente Auditor Autonomo. Sigue estrictamente este SDD:\n\n${sddContent}\n\nUsa tus herramientas para realizar la tarea y cuando termines, escribe un reporte detallado con tus conclusiones.` }]
         }
     ];
 
@@ -80,14 +86,13 @@ async function iniciarAuditoria() {
 
     while (!completado && iteracion < 40) {
         iteracion++;
-        console.log("   [Gemini Pensando...]");
+        console.log("   [Agente Pensando  ]");
         
         let respuesta;
         try {
-            // USAMOS LA FUNCIÓN DE REINTENTO AQUÍ
             respuesta = await conReintento(() => model.generateContent({ contents: history }));
         } catch (error: any) {
-            console.error("   ⚠️ Error fatal de la API:", error.message);
+            console.error("   Error fatal de la API:", error.message);
             break;
         }
 
@@ -102,7 +107,7 @@ async function iniciarAuditoria() {
             const toolCall = call[0];
             const nombreReal = mcpTools.tools.find(t => t.name.replace(/-/g, '_') === toolCall.name)?.name || toolCall.name;
             
-            console.log(`   🛠️  [Ejecutando Acción en Navegador]: ${nombreReal}`);
+            console.log(`    [Ejecutando Acción en Navegador]: ${nombreReal}`);
             
             try {
                 const resultadoMcp = await mcpClient.callTool({
@@ -120,7 +125,7 @@ async function iniciarAuditoria() {
                     }]
                 });
             } catch (error: any) {
-                console.log(`   ⚠️ Error en la herramienta: ${error.message}`);
+                console.log(`   Error en la herramienta: ${error.message}`);
                 history.push({
                     role: "user",
                     parts: [{
@@ -132,21 +137,23 @@ async function iniciarAuditoria() {
                 });
             }
         } else {
-            console.log("\n==================================");
-            console.log("📊 REPORTE FINAL DE AUDITORÍA");
-            console.log("==================================\n");
+            console.log("\n");
+            console.log(" REPORTE FINAL DE AUDITORÍA");
+            console.log("\n");
             
             const final = respuesta.response.text();
             console.log(final);
             
-            const nombreReporte = `REPORTE_${archivoSpec.replace('.md', '').replace('./', '').replace('.\\', '')}.txt`;
+            const dirName = path.dirname(archivoSpec);
+            const nombreBase = path.basename(archivoSpec, ".md");
+            const nombreReporte = path.join(dirName, `REPORTE_${nombreBase}_PUPPETEER.md`);
             fs.writeFileSync(nombreReporte, final);
-            console.log(`\n📁 Reporte guardado en ${nombreReporte}`);
+            console.log(`\n Reporte guardado en ${nombreReporte}`);
             completado = true;
         }
     }
     
-    console.log("🏁 Auditoría Finalizada.");
+    console.log(" Auditoría Finalizada.");
     process.exit(0);
 }
 

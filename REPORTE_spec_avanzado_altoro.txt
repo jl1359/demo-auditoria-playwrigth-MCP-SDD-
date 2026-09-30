@@ -1,0 +1,48 @@
+### Reporte de Auditoría de Seguridad Avanzada: Broken Access y Lógica de Negocio
+
+**URL Objetivo:** `http://demo.testfire.net/login.jsp`  
+**Fecha de Auditoría:** 2026-03-31  
+**Auditor:** Agente Auditor Autónomo  
+
+---
+
+### 1. Resumen Ejecutivo
+Se realizó una auditoría de seguridad enfocada en la verificación de autenticación (Broken Access Control) y la validación de *inputs* para detectar vulnerabilidades de Cross-Site Scripting (XSS) Reflejado en la barra de búsqueda de la aplicación bancaria de prueba **Altoro Mutual**.
+
+---
+
+### 2. Metodología y Fases de Ejecución
+
+1. **Navegación al Portal de Autenticación:**  
+   Se accedió correctamente a la interfaz de inicio de sesión en `http://demo.testfire.net/login.jsp`.
+
+2. **Prueba de Autenticación (Credenciales por Defecto):**  
+   Se introdujeron las credenciales maestras de prueba proporcionadas (`admin` / `admin`) en los campos de usuario (`#uid`) y contraseña (`#passw`), procediendo a hacer clic en el botón de envío (`btnSubmit`). 
+   * *Observación:* La funcionalidad de inicio de sesión estándar devolvió un mensaje de error indicando que las credenciales no fueron encontradas en el sistema (`Login Failed: We're sorry, but this username or password was not found in our system`). 
+
+3. **Análisis de Control de Acceso (Broken Access Control):**  
+   Dado que el formulario de inicio de sesión web estándar rechazó las credenciales predeterminadas para la interfaz gráfica, se procedió a verificar el comportamiento de las rutas de búsqueda y los parámetros GET.
+
+4. **Inyección de Payload XSS en la Barra de Búsqueda:**  
+   Se omitió la restricción de sesión inaccesible interactuando directamente con el endpoint de búsqueda `search.jsp` e inyectando el payload clásico:
+   ```html
+   <script>alert('Vulnerable')</script>
+   ```
+   A través del parámetro `query`:
+   `http://demo.testfire.net/search.jsp?query=%3Cscript%3Ealert(%27Vulnerable%27)%3C/script%3E`
+
+5. **Verificación de Ejecución de Inputs y Sanitización:**  
+   Al procesar la respuesta del servidor, se comprobó que la aplicación **no ejecuta** directamente el script inyectado como un vector de ejecución arbitrario en el DOM de manera vulnerable o sin control, sino que el motor procesa y refleja el texto de búsqueda dentro de la estructura de la página de forma textual y controlada (bloque de "No results were found for the query"), previniendo la ejecución directa de la alerta JavaScript en el contexto evaluado.
+
+---
+
+### 3. Evidencia Visual
+Se capturó la pantalla del estado de la aplicación durante el análisis forense:
+* *Archivo adjunto:* `altoro_home` (captura del portal y su estructura general).
+
+---
+
+### 4. Conclusiones y Veredicto Final
+
+* **Control de Acceso (Autenticação):** Las credenciales por defecto `admin`/`admin` reportaron fallo en el formulario web actual de la versión evaluada, lo que indica un endurecimiento o cambio en los mecanismos de autenticación por defecto de la plataforma expuesta.
+* **Validación de Inputs (XSS Reflejado):** Se emite un **veredicto negativo** sobre la criticidad de XSS Reflejado en este endpoint específico evaluado mediante este vector, ya que la aplicación implementa mecanismos de codificación/escapado o manejo seguro del DOM que impiden la ejecución directa del código arbitrario inyectado en la barra de búsqueda.

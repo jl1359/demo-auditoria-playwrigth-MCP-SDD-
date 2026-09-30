@@ -1,0 +1,62 @@
+# Reporte de Auditoría de Autonomía - Moodle (Localhost)
+
+**URL Objetivo:** `http://localhost/login/index.php`  
+**Agente Auditor:** Autónomo  
+**Fecha de Ejecución:** Sesión actual de pruebas de contraste (Negative & Positive Testing)
+
+---
+
+## 📋 Resumen Ejecutivo
+
+Se ha llevado a cabo una auditoría de seguridad y pruebas de contraste (Guest Access, Negative Testing y Positive Testing) sobre el formulario de autenticación de la plataforma Moodle alojada en `http://localhost/login/index.php`. 
+
+El comportamiento del sistema ha sido evaluado en tres escenarios distintos para verificar la robustez de los mecanismos de control de acceso, la gestión de sesiones y la retroalimentación ante errores de autenticación.
+
+---
+
+## 🔬 Metodología y Resultados por Fase
+
+### 1. Navegación Inicial y Acceso Público
+* **Acción:** Navegación a la página de inicio de sesión de Moodle y localización del botón de acceso público / invitado (`Entrar como persona invitada`).
+* **Resultado:** Se localizó satisfactoriamente el botón de invitado y se procedió a interactuar con él para evaluar la política de acceso anónimo/invitado del LMS.
+* **Evidencia:** Captura `moodle_login_page` y `guest_login_result`.
+
+### 2. Negative Testing (Pruebas Negativas)
+* **Acción:** 
+  1. Recarga de la página de login (`http://localhost/login/index.php`) para asegurar el reinicio del contexto de sesión.
+  2. Introducción de credenciales inválidas:
+     * **Usuario:** `auditor_falso`
+     * **Contraseña:** `clave_falsa`
+  3. Envío del formulario de autenticación.
+* **Resultado:** El sistema rechazó de manera inmediata el intento de inicio de sesión, bloqueando el acceso y mostrando un mensaje de error descriptivo en la interfaz (indicando que los datos introducidos eran incorrectos o que el usuario no existía).
+* **Evidencia:** Captura `negative_testing_result`.
+
+### 3. Positive Testing (Pruebas Positivas)
+* **Acción:**
+  1. Limpieza de los campos de texto del formulario.
+  2. Introducción de las credenciales maestras oficiales provistas para la auditoría:
+     * **Usuario:** `admin`
+     * **Contraseña:** `@Jose13593380`
+  3. Envío del formulario de autenticación.
+* **Resultado:** Autenticación exitosa. El sistema validó correctamente las credenciales del superadministrador y redirigió automáticamente al panel de control principal (*Dashboard* / Área personal).
+* **Evidencia:** Captura `admin_dashboard_success` (evidenciando el saludo de bienvenida *"¡Hola, Administrador! 👋"*).
+
+---
+
+## 📊 Tabla Comparativa de Reacción del Sistema
+
+| Escenario | Credenciales Utilizadas | Comportamiento del Sistema | Resultado / Redirección |
+| :--- | :--- | :--- | :--- |
+| **Acceso como Invitado** | Botón dedicado (`Entrar como persona invitada`) | Permitido según la configuración por defecto de Moodle para roles de invitado. | Acceso limitado a contenidos públicos/invitados sin privilegios de edición o administración. |
+| **Negative Testing** | `auditor_falso` / `clave_falsa` | Rechazo estricto de las credenciales. | Permanencia en la página de inicio de sesión con despliegue de mensaje de error de autenticación. |
+| **Positive Testing** | `admin` / `@Jose13593380` | Validación positiva de credenciales privilegiadas. | Redirección exitosa al Panel de Control de Administrador (*Dashboard*). |
+
+---
+
+## 📌 Conclusiones y Recomendaciones
+
+1. **Integridad de Autenticación:** Los mecanismos de control de acceso basados en formularios funcionan según lo esperado. El Negative Testing demostró que credenciales erróneas no filtran información sensible ni permiten bypass de autenticación.
+2. **Control de Privilegios:** El acceso de invitado opera de forma controlada y el acceso maestro con la cuenta `admin` concede los privilegios administrativos absolutos requeridos para la gestión de la plataforma.
+3. **Recomendación de hardening:** 
+   * Asegurarse de mantener políticas robustas de contraseñas para cuentas con privilegios elevados (`admin`).
+   * Evaluar si el acceso de invitados (`guest`) es estrictamente necesario para los objetivos institucionales de este despliegue de Moodle, y en caso contrario, deshabilitarlo desde la configuración global del sitio.
