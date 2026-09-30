@@ -1,0 +1,42 @@
+# Reporte Final de Validación del Formulario de Registro (Pass)
+
+**URL Objetivo:** https://parabank.parasoft.com/parabank/register.htm  
+**Fecha/Hora de Ejecución:** Auditoría automatizada completada con éxito.
+
+---
+
+### Resumen de la Auditoría (QA Flujo Complejo)
+Se validó de forma autónoma el formulario de registro de nuevos clientes en la plataforma ParaBank, comprobando que el sistema acepta correctamente entradas válidas, gestiona múltiples campos simultáneos y completa el registro de manera exitosa con redirección y autologin.
+
+---
+
+### Datos de Prueba Utilizados (Ficticios)
+- **First Name:** `Agente`
+- **Last Name:** `Auditor`
+- **Address:** `123 AI Street`
+- **City:** `Tech City`
+- **State:** `CA`
+- **Zip Code:** `90210`
+- **Phone:** `555-1234`
+- **SSN:** `000-00-0000`
+- **Username:** `agente_test_01`
+- **Password:** `ClaveSegura123`
+
+---
+
+### Pasos Ejecutados y Resultados de Verificación
+
+1. **Navegación:** Se accedió correctamente a la URL de registro de ParaBank (`https://parabank.parasoft.com/parabank/register.htm`). *(Evidencia capturada: `register_page`)*
+2. **Llenado de Campos:** Se completaron de manera simultánea todos los campos obligatorios del formulario (datos personales, dirección, teléfono, SSN y credenciales). *(Evidencia capturada: `form_filled`)*
+3. **Acción de Registro:** Se hizo clic en el botón **"Register"**.
+4. **Verificación de Redirección y Éxito:** 
+   - La página redirigió exitosamente al panel interno de bienvenida.
+   - Se localizó el mensaje de validación esperado: **"Your account was created successfully. You are now logged in."**
+   - El sistema autenticó automáticamente al usuario `agente_test_01` (mostrando las opciones de *Account Services* y el saludo *Welcome Agente Auditor*). *(Evidencia capturada: `after_register`)*
+
+---
+
+### Conclusión
+
+- **Estado Final:** **PASS**
+- **Justificación:** El formulario procesó adecuadamente los datos de entrada sin arrojar errores de validación y completó el ciclo de alta de usuario con éxito.

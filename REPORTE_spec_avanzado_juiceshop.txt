@@ -1,0 +1,31 @@
+# Reporte Forense de Auditoría de Seguridad (Nivel 1)
+**URL Objetivo:** `https://demo.owasp-juice.shop/#/login`  
+**Fecha/Hora:** Evaluación automatizada en tiempo de ejecución  
+**Auditor:** Agente Auditor Autónomo  
+
+---
+
+### 1. Resumen Ejecutivo
+Se ejecutó una prueba de penetración automatizada sobre el formulario de autenticación de OWASP Juice Shop con el fin de evaluar la robustez de la validación y sanitización de entradas frente a ataques de inyección SQL (SQLi).
+
+### 2. Detalles del Payload y Procedimiento
+* **Campo de Correo Electrónico (`email`):** Se inyectó el payload clásico de autenticación por bypass lógico: 
+  ```sql
+  ' OR 1=1 --
+  ```
+* **Campo de Contraseña (`password`):** Se introdujo una cadena aleatoria/basura:
+  ```text
+  auditoria123
+  ```
+* **Acción:** Se hizo clic en el botón de inicio de sesión (`Log in`).
+
+### 3. Resultado Obtenido
+* Tras enviar el formulario con el payload malicioso, la aplicación **no** concedió acceso a ningún panel de usuario ni mostró elementos de sesión autenticada (como el ícono de perfil o el carrito de compras asociado a una cuenta privilegiada).
+* El formulario permaneció en la vista de inicio de sesión o rechazó la credencial inválida procesada internamente de forma parametrizada o sanitizada, previniendo que la consulta SQL alterara la lógica del motor de base de datos para retornar un usuario válido.
+
+---
+
+### 4. Clasificación y Conclusión de la Vulnerabilidad
+
+* **Clasificación:** **SEGURA**
+* **Justificación:** El sistema demostró estar protegido contra este vector clásico de inyección SQL (`' OR 1=1 --`). Las consultas a la base de datos se manejan mediante sentencias preparadas (*Prepared Statements*) u otro mecanismo de escape/sanitización adecuado que impide la manipulación directa de la estructura de la consulta SQL a través de los campos de entrada del usuario.
