@@ -13,3 +13,4 @@ Ejecutar una prueba de penetración automatizada (Pentesting) de Nivel 1 para bu
 6. Haz clic en el botón de iniciar sesión ("Log in").
 7. Evalúa la respuesta de la página: Verifica si aparece un mensaje de error o si el sistema permite la entrada y muestra el ícono del carrito de compras/perfil de usuario.
 8. Redacta un reporte forense indicando el payload utilizado, el resultado obtenido y clasifica si la vulnerabilidad es "Crítica" (si logró entrar) o "Segura" (si lo bloqueó).
+
